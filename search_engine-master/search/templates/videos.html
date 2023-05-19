@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+
+
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css'%}">
+    <!-- CSS only -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+  ul {
+    list-style-type: none;
+  }
+</style>
+
+
+
+
+
+
+      <section class="section-1" style="flex: 0;">
+      	<form action="{% url 'search' %}"  method="get"><br><br>
+      		<div class="s-box">
+      			<img src="{% static 'img/search.svg'%}" class="search-icon">
+      			<input type="text" name="q" id="q" class="s-input" value="{{ query }}">
+
+      			<input type="submit" class="s-btn" value="Search">
+      		</div>
+      	</form>
+
+      </section>
+
+<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="padding-left: 222px;">
+  <li class="nav-item" >
+    <a class="nav-link " href="{% url 'search' %}?q={{ query }}" type="button" >All</a>
+  </li>
+          <li class="nav-item" >
+    <a class="nav-link active" type="button"  href="{% url 'videos' query %}">Videos</a>
+  </li>
+<li class="nav-item" >
+  <a class="nav-link "  href="{% url 'google_images_search' query %}" type="button" >Images</a>
+</li>
+
+      <li class="nav-item" >
+    <a class="nav-link " type="button"  href="{% url 'news' query %}">News</a>
+  </li>
+
+
+          <li class="nav-item" role="presentation">
+    <button class="nav-link" id="pills-shopping-tab" data-bs-toggle="pill" data-bs-target="#pills-shopping" type="button" role="tab" aria-controls="pills-shopping" aria-selected="false">Shopping</button>
+         </li>
+
+              <li class="nav-item" role="presentation">
+    <button class="nav-link" id="pills-maps-tab" data-bs-toggle="pill" data-bs-target="#pills-maps" type="button" role="tab" aria-controls="pills-maps" aria-selected="false">Maps</button>
+         </li>
+
+</ul>
+<div >
+
+
+
+
+
+
+
+
+
+
+<div >
+
+
+  <ul style="list-style-type: none; padding-left: 222px;">
+
+       {% for result in filtered_results %}
+           {% if result.3 %}
+              <h2>{{result.0 }} </h2>
+                <li>
+                <a href="{{ result.3 }}" target="_blank">{{ result.3}}</a>
+               </li>
+               <li>
+               <p>{{ result.2 }} </p>
+               </li>
+          {% else %}
+          {% endif %}
+
+    {% endfor %}
+
+        </ul>
+
+
+
+
+        <ul style="list-style-type: none; padding-left: 222px;">
+
+       {% for video in page_obj %}
+              <h2>{{ video.name }} </h2>
+                <li>
+                <a href="{{ video.url }}" target="_blank">{{ video.url }}</a>
+            </li>
+
+    {% endfor %}
+
+    {% if not page_obj %}
+        <p>No videos found.</p>
+    {% endif %}
+
+        </ul>
+
+
+
+
+
+
+
+{#        {% for result in video_results %}#}
+{#            <li>#}
+{#                <a href="{{ result.link }}" target="_blank">{{ result.link }}</a>#}
+{#            <h3>{{ result.title }} </h3>#}
+{#            </li>#}
+{##}
+{#              {% empty %}#}
+{#    <p>No results found.</p>#}
+{##}
+{##}
+{#        {% endfor %}#}
+
+
+
+
+{#        <ul style="list-style-type: none; padding-left: 222px;">#}
+{##}
+{#        {% for result in bing_video_list %}#}
+{#            <li>#}
+{#                <a href="{{ result.url }}" target="_blank">{{ result.aria_label }}</a>#}
+{##}
+{#            </li>#}
+{##}
+{#              {% empty %}#}
+{#    <p>No results found.</p>#}
+{##}
+{##}
+{#        {% endfor %}#}
+{##}
+{#</ul>#}
+
+
+
+
+
+{% if page_obj.has_other_pages %}
+        <div class="pagination" style="list-style-type: none; padding-left: 222px;">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current-page">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+</div>
+
+
+
+
+
+
+<div class="tab-pane fade" id="pills-shopping" role="tabpanel" aria-labelledby="pills-shopping-tab">
+
+<div class="jumbotron jumbotron-fluid" style="list-style-type: none; padding-left: 222px;">
+  <div class="container">
+    <h1 class="display-4">Not operational</h1>
+  </div>
+</div>
+
+</div>
+
+
+<div class="tab-pane fade" id="pills-maps" role="tabpanel" aria-labelledby="pills-maps-tab">
+
+<div class="jumbotron jumbotron-fluid" style="list-style-type: none; padding-left: 222px;">
+  <div class="container">
+    <h1 class="display-4">Not operational</h1>
+  </div>
+</div>
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+{% endblock %}

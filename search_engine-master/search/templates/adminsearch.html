@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css'%}">
+
+
+<style>
+
+    .hide {
+  display: none;
+}
+    #loading-bar {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  z-index: 9999;
+}
+
+#loading-bar:before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #007bff;
+  border-top-color: transparent;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+</style>
+
+
+
+<section id="form" class="section-1">
+  <img id="img" style="height: 64px;" src="https://www.kindpng.com/picc/m/195-1951310_your-logo-here-png-monochrome-transparent-png.png" class="logo">
+  <form id="search-form" action="{% url 'adminsearchindexing' %}" method="get">
+    <div class="s-box">
+      <img src="{% static 'img/search.svg'%}" class="search-icon">
+      <input type="text" name="q" id="q" class="s-input" value="{{ request.GET.q }}">
+      <input type="submit" id="submit-btn" class="s-btn" value="Search">
+    </div>
+  </form>
+</section>
+
+<div id="loading-bar" class="hide">
+  Searching...
+</div>
+
+
+
+<script>
+const form = document.querySelector('#search-form');
+const submitBtn = document.querySelector('#submit-btn');
+const loadingBar = document.querySelector('#loading-bar');
+const img = document.querySelector('#img');
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  form.classList.add('hide');
+  img.classList.add('hide');
+  loadingBar.classList.remove('hide');
+  // submit the form
+  form.submit();
+});
+
+
+</script>
+
+
+{% endblock %}

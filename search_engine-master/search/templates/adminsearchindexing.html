@@ -1,0 +1,617 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+
+
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css'%}">
+    <!-- CSS only -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<!-- JavaScript Bundle with Popper -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/js/bootstrap.bundle.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+  ul {
+    list-style-type: none;
+  }
+</style>
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"  crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+
+
+      <section class="section-1" style="flex: 0;">
+      	<form action="{% url 'adminsearchindexing' %}"  method="get"><br><br>
+      		<div class="s-box">
+      			<img src="{% static 'img/search.svg'%}" class="search-icon">
+      			<input type="text" name="q" id="q" class="s-input" value="{{ query }}">
+
+      			<input type="submit" class="s-btn" value="Search">
+      		</div>
+      	</form>
+
+      </section>
+    <h3 style="padding-left: 222px;"> Admin search indexing </h3>
+
+<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="padding-left: 222px;">
+  <li class="nav-item " >
+    <a class="nav-link active" href="" type="button" >All</a>
+  </li>
+{#          <li class="nav-item" >#}
+{#    <a class="nav-link" type="button"  href="{% url 'videos' query %}">Videos</a>#}
+{#  </li>#}
+{#<li class="nav-item" >#}
+{#  <a class="nav-link"  href="{% url 'google_images_search' query %}" type="button" >Images</a>#}
+{#</li>#}
+{##}
+{##}
+{#      <li class="nav-item" >#}
+{#    <a class="nav-link " type="button"  href="{% url 'news' query %}">News</a>#}
+{#  </li>#}
+{##}
+{##}
+{##}
+{#          <li class="nav-item" role="presentation">#}
+{#    <button class="nav-link" id="pills-shopping-tab" data-bs-toggle="pill" data-bs-target="#pills-shopping" type="button" role="tab" aria-controls="pills-shopping" aria-selected="false">Shopping</button>#}
+{#         </li>#}
+{##}
+{#              <li class="nav-item" role="presentation">#}
+{#    <button class="nav-link" id="pills-maps-tab" data-bs-toggle="pill" data-bs-target="#pills-maps" type="button" role="tab" aria-controls="pills-maps" aria-selected="false">Maps</button>#}
+{#         </li>#}
+
+</ul>
+<div class="tab-content" id="pills-tabContent">
+  <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+
+
+    <style>
+      /* Style for the item being dragged */
+      #search-results li.dragging {
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        opacity: 0.8;
+      }
+    </style>
+
+
+
+
+
+{#<ul id="search-results" style="list-style-type: none; padding-left: 222px;">#}
+{#  {% for item in page_obj %}#}
+{#    <li data-source="{{ item.source }}" draggable="true" data-targetIndex="{{ loop.index }}">#}
+{#      <h2><a href="{{ item.link }}">{{ item.title }}</a></h2>#}
+{#      <p id="{{ item.id_ }}">{{ item.snippet }}</p>#}
+{#    </li>#}
+{#  {% empty %}#}
+{#    <li>No results found.</li>#}
+{#  {% endfor %}#}
+{#</ul>#}
+
+
+
+
+{##}
+{#<ul id="search-results" style="list-style-type: none; padding-left: 222px;">#}
+{#  {% for item in page_obj %}#}
+{#    <li data-source="{{ item.source }}" draggable="true">#}
+{#      <h2><a href="{{ item.link }}">{{ item.title }}</a></h2>#}
+{#      <p id="{{ item.id_ }}">{{ item.snippet }}#}
+{#<a href="#" onclick="blockItem('{{ item.title }}', '{{ item.link }}', '{{ query }}')">#}
+{#  <i class="fas fa-ban" style="color: red;"></i>#}
+{##}
+{#</a>#}
+{##}
+{#      </p>#}
+{#    </li>#}
+{#  {% empty %}#}
+{#    <li>No results found.</li>#}
+{#  {% endfor %}#}
+{#</ul>#}
+{##}
+{##}
+{##}
+{##}
+{##}
+{##}
+
+
+
+  {% if direct_bing %}
+     <p style="padding-left: 222px;"> Direct bing search ( B: )  </p>
+   {% elif limite_I %}
+      <p style="padding-left: 222px;"> Search ( I: )  </p>
+  {% else %}
+      <p style="padding-left: 222px;">  Specific websites search </p>
+  {% endif %}
+
+
+
+
+  {% if bing_result_web %}
+
+          <ul id="search-results" style="list-style-type: none; padding-left: 222px;">
+  {% for item in bing_result_web %}
+    <li data-source="{{ item.source }}" draggable="true" data-targetIndex="{{ loop.index }}">
+      <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+        <a href="{{ item.url }}">{{ item.url }}</a>
+      <p id="{{ item.id_ }}"> {{ item.snippet  }}
+
+
+            <a href="#" onclick="blockItem('{{ item.title }}', '{{ item.url }}', '{{ query }}')">
+  <i class="fas fa-ban" style="color: red;"></i>
+
+</a>
+      </p>
+
+
+
+    </li>
+  {% empty %}
+    <li>No results found.</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+
+
+
+
+
+
+
+
+   {% if results %}
+
+                <ul id="search-results" style="list-style-type: none; padding-left: 222px;">
+      {% for item in results %}
+          <li data-source="{{ item.source }}" draggable="true" data-targetIndex="{{ loop.index }}">
+                <h2>{{ item.0 }}</h2><!-- access title using dot notation -->
+                <a href="{{ item.1 }}">{{ item.1 }}</a> <!-- access link using array indexing with variable -->
+                <p id="{{ item.id_ }}">{{ item.2  }}
+                            <a href="#" onclick="blockItem('{{ item.0 }}', '{{ item.1 }}', '{{ query }}')">
+                                <i class="fas fa-ban" style="color: red;"></i></a>
+
+                </p> <!-- access snippet using dot notation -->
+          </li>
+            {% empty %}
+    <li>No results found.</li>
+        {% endfor %}
+          </ul>
+
+{% endif %}
+
+
+
+{% if filtered_results %}
+    <ul id="search-results" style="list-style-type: none; padding-left: 222px;">
+        {% for result in filtered_results %}
+            {% with result.position as targetIndex %}
+                <li data-source="{{ result.source }}" draggable="true" data-targetIndex="{{ targetIndex }}">
+                    <h2>{{ result.name }}</h2>
+                    <a href="{{ result.url }}">{{ result.url }}</a>
+                    <p>{{ result.snippet }}</p>
+                </li>
+            {% endwith %}
+        {% empty %}
+            <li>No results found.</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+
+<script>
+    // Set the targetIndex of all items in the list
+    var items = document.querySelectorAll('#search-results li');
+    [].forEach.call(items, function(item, index) {
+        item.setAttribute('data-targetIndex', index + 1);
+    });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  var draggedItem = null;
+
+  function handleDragStart(e) {
+    draggedItem = this;
+    this.classList.add('dragging'); // Add the "dragging" class to highlight the item
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function handleDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+  }
+
+  function handleDragLeave(e) {
+    this.classList.remove('over'); // Remove the "over" class
+  }
+
+  function handleDrop(e) {
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+    if (draggedItem !== this) {
+      var source = draggedItem.getAttribute('data-source');
+      var target = this.getAttribute('data-source');
+      if (source === target) {
+        var parent = this.parentNode;
+        var items = parent.children;
+        var draggedIndex = Array.prototype.indexOf.call(items, draggedItem);
+        var targetIndex = Array.prototype.indexOf.call(items, this);
+
+        if (draggedIndex < targetIndex) {
+          parent.insertBefore(draggedItem, this.nextSibling);
+        } else {
+          parent.insertBefore(draggedItem, this);
+        }
+
+        // Get the title and link of the dragged item
+        var title = draggedItem.querySelector('a').innerText;
+        var link = draggedItem.querySelector('a').getAttribute('href');
+
+        // Get the ID of the dragged item
+        var itemId = draggedItem.querySelector('p').getAttribute('id');
+
+        // Set the targetIndex of all items in the list
+        [].forEach.call(items, function(item, index) {
+          item.setAttribute('data-targetIndex', index + 1);
+        });
+
+        // Send the data to the update_position function
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/update_position');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            console.log(xhr.responseText);
+          } else {
+            console.log('Request failed.  Returned status of ' + xhr.status);
+          }
+        };
+        xhr.send(JSON.stringify({
+          'position': targetIndex + 1,
+          'id_': itemId,
+          'title': title,
+          'link': link
+        }));
+      }
+    }
+    return false;
+  }
+
+  var items = document.querySelectorAll('#search-results li');
+  [].forEach.call(items, function(item, index) {
+    item.setAttribute('data-targetIndex', index + 1);
+    item.addEventListener('dragstart', handleDragStart, false);
+    item.addEventListener('dragover', handleDragOver, false);
+    item.addEventListener('dragleave', handleDragLeave, false);
+    item.addEventListener('drop', handleDrop, false);
+  });
+</script>
+
+
+
+  <script>
+  function blockItem(title, link, query) {
+  var is_blocked = confirm("Are you sure you want to block this item?");
+  if (is_blocked) {
+    var form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/block_item";
+
+    var title_input = document.createElement("input");
+    title_input.type = "hidden";
+    title_input.name = "title";
+    title_input.value = title;
+
+    var link_input = document.createElement("input");
+    link_input.type = "hidden";
+    link_input.name = "link";
+    link_input.value = link;
+
+    var query_input = document.createElement("input");
+    query_input.type = "hidden";
+    query_input.name = "query";
+    query_input.value = query;
+
+    form.appendChild(title_input);
+    form.appendChild(link_input);
+    form.appendChild(query_input);
+
+    document.body.appendChild(form);
+
+    form.submit();
+  }
+}
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      {#function handleDrop(e) {#}
+      {#  if (e.stopPropagation) {#}
+      {#    e.stopPropagation();#}
+      {#  }#}
+      {#  if (draggedItem !== this) {#}
+      {#    var source = draggedItem.getAttribute('data-source');#}
+      {#    var target = this.getAttribute('data-source');#}
+      {#    if (source === target) {#}
+      {#      var parent = this.parentNode;#}
+      {#      var targetIndex = Array.prototype.indexOf.call(parent.children, this);#}
+      {#      var draggedIndex = Array.prototype.indexOf.call(parent.children, draggedItem);#}
+      {#      if (draggedIndex < targetIndex) {#}
+      {#        parent.insertBefore(draggedItem, this.nextSibling);#}
+      {#      } else {#}
+      {#        parent.insertBefore(draggedItem, this);#}
+      {#      }#}
+      {#    }#}
+      {#  }#}
+      {#  return false;#}
+      <!-- } -->
+
+
+
+
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+
+<div class="row row-cols-1 row-cols-md-3 g-3">
+  {% for image_url in image_urls %}
+    <div class="col">
+      <div class="card">
+        <img src="{{ image_url }}" class="card-img-top" alt="{{ query }}">
+      </div>
+    </div>
+  {% empty %}
+    <p>No results found.</p>
+  {% endfor %}
+
+
+
+  {% for image_url in bing_result_images %}
+    <div class="col">
+      <div class="card">
+        <img src="{{ image_url }}" class="card-img-top" alt="{{ query }}">
+      </div>
+    </div>
+  {% empty %}
+    <p>No results found.</p>
+  {% endfor %}
+
+</div>
+
+
+
+  </div>
+
+
+
+
+
+
+<div class="tab-pane fade" id="pills-news" role="tabpanel" aria-labelledby="pills-news-tab">
+
+        <ul style="list-style-type: none; padding-left: 222px;">
+
+             {% for news in news_list %}
+        <div class="news-item">
+            <div class="news-item-title">
+                <a href="{{ news.link }}" target="_blank">{{ news.link }}</a>
+            </div>
+        <p>  {{ news.headline }}</p>
+        </div>
+                   {% empty %}
+    <p>No results found.</p>
+    {% endfor %}
+
+</ul>
+
+
+
+
+        <ul style="list-style-type: none; padding-left: 222px;">
+
+             {% for news in bing_news_list  %}
+        <div class="news-item">
+            <div class="news-item-title">
+                <a href="{{ news.link }}" target="_blank">{{ news.link }}</a>
+            </div>
+        <p>  {{ news.title  }}</p>
+        </div>
+                   {% empty %}
+    <p>No results found.</p>
+    {% endfor %}
+
+</ul>
+
+</div>
+
+
+<div class="tab-pane fade" id="pills-videos" role="tabpanel" aria-labelledby="pills-videos-tab">
+
+        <ul style="list-style-type: none; padding-left: 222px;">
+
+        {% for result in video_results %}
+            <li>
+                <a href="{{ result.link }}" target="_blank">{{ result.link }}</a>
+            <h3>{{ result.title }} </h3>
+            </li>
+
+              {% empty %}
+    <p>No results found.</p>
+
+
+        {% endfor %}
+
+
+
+
+        <ul style="list-style-type: none; padding-left: 0px;">
+
+        {% for result in bing_video_list %}
+            <li>
+                <a href="{{ result.url }}" target="_blank">{{ result.aria_label }}</a>
+
+            </li>
+
+              {% empty %}
+    <p>No results found.</p>
+
+
+        {% endfor %}
+
+</ul>
+
+</div>
+
+
+
+
+
+
+
+<div class="tab-pane fade" id="pills-shopping" role="tabpanel" aria-labelledby="pills-shopping-tab">
+
+<div class="jumbotron jumbotron-fluid" style="list-style-type: none; padding-left: 222px;">
+  <div class="container">
+    <h1 class="display-4">Not operational</h1>
+  </div>
+</div>
+
+</div>
+
+
+<div class="tab-pane fade" id="pills-maps" role="tabpanel" aria-labelledby="pills-maps-tab">
+
+<div class="jumbotron jumbotron-fluid" style="list-style-type: none; padding-left: 222px;">
+  <div class="container">
+    <h1 class="display-4">Not operational</h1>
+  </div>
+</div>
+
+</div>
+
+
+
+
+</div>
+
+
+
+{#  {% if page_obj.has_previous %}#}
+{#    <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}">Previous</a>#}
+{#  {% endif %}#}
+{##}
+{#  <span class="current-page">{{ page_obj.number }}</span>#}
+{##}
+{#  {% if page_obj.has_next %}#}
+{#    <a href="?q={{ query }}&page={{ page_obj.next_page_number }}">Next</a>#}
+{#  {% endif %}#}
+
+{#  <ul>#}
+{#    {% for item in page_obj %}#}
+{#      <li>#}
+{#        <h2><a href="{{ item.link }}">{{ item.title }}</a></h2>#}
+{#        <p>{{ item.snippet }}</p>#}
+{#      </li>#}
+{#    {% endfor %}#}
+{#  </ul>#}
+
+
+
+{% endblock %}
