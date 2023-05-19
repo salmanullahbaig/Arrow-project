@@ -937,6 +937,15 @@ from django.core.paginator import Paginator
 from search.models import *
 
 
+def bing_search_web_updated(query, api_key, offset=0):
+    url = "https://api.bing.microsoft.com/v7.0/search"
+    headers = {"Ocp-Apim-Subscription-Key": api_key}
+    params = {"q": query, "count": 50, "offset": offset}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+
 def search(request):
     query = request.GET.get('q') or request.POST.get('query')
     Searches.objects.create(query=query)
@@ -945,6 +954,12 @@ def search(request):
         # Do something if the query has B:
         print('Query has B:',query)
         query = query.replace('B:', '')
+
+        # bing_api_key = "79407ee4a67041b5a12cbe23c684dbe5"  # Replace with your Bing API key
+        # bing_results = bing_search_web_updated(query, bing_api_key, 50)
+        # print("bing_results B ", bing_results)
+
+
         bing_result_web = web_bing(query)
         items = bing_result_web
         for i, item in enumerate(items):
@@ -971,6 +986,12 @@ def search(request):
                 items.remove(item)
 
         bing_result_web = items
+        if bing_result_web is not None:
+            # Pagination
+            paginator = Paginator(bing_result_web, 10)  # Show 5 items per page
+            page_number = request.GET.get('page')
+            bing_result_web = paginator.get_page(page_number)
+
         direct_bing = "Direct bing"
         if not query.startswith('B:'):
             query = f'B:{query}'
@@ -1044,6 +1065,7 @@ def search(request):
         # # Print the filtered results
         for idx, result in enumerate(filtered_results):
             print(f"{idx + 1}: {result['snippet']} - {result['url']}")
+
         #############   End  Specific searches    ##########################
 
 

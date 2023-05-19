@@ -140,4 +140,4 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
-CSRF_TRUSTED_ORIGINS= ['*']
+CSRF_TRUSTED_ORIGINS= ['https://arrowproject.azurewebsites.net/']

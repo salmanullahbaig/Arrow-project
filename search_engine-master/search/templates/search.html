@@ -162,27 +162,46 @@
       <p style="padding-left: 222px;">  Specific websites search </p>
   {% endif %}
 
+
+
+
+{#{% for result in bing_results.webPages.value %}#}
+{#    <div class="result">#}
+{#        <h3>{{ result.name }}</h3>#}
+{#        <p>{{ result.snippet }}</p>#}
+{#        <a href="{{ result.url }}">{{ result.url }}</a>#}
+{#    </div>#}
+{#{% endfor %}#}
+
+
+
+
   {% if bing_result_web %}
-
           <ul id="search-results" style="list-style-type: none; padding-left: 222px;">
-  {% for item in bing_result_web %}
-    <li  data-targetIndex="{{ loop.index }}">
-      <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
-        <a href="{{ item.url }}">{{ item.url }}</a>
-      <p id="{{ item.id_ }}"> {{ item.snippet  }}
+          {% for item in bing_result_web %}
+            <li  data-targetIndex="{{ loop.index }}">
+              <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+                <a href="{{ item.url }}">{{ item.url }}</a>
+              <p id="{{ item.id_ }}"> {{ item.snippet  }}
+              </p>
+            </li>
+          {% empty %}
+            <li>No results found.</li>
+          {% endfor %}
+    </ul>
 
 
+      <!-- Add pagination links -->
+<div class="pagination" style=" padding-left: 222px;">
+    {% if bing_result_web.has_previous %}
+        <a href="">Previous</a>
+    {% endif %}
+    <span class="current-page">{{ bing_result_web.number }}</span>
+    {% if bing_result_web.has_next %}
+        <a href="">Next</a>
+    {% endif %}
+</div>
 
-
-      </p>
-
-
-
-    </li>
-  {% empty %}
-    <li>No results found.</li>
-  {% endfor %}
-</ul>
 {% endif %}
 
 
@@ -206,7 +225,7 @@
 
 
         {% if results.has_other_pages %}
-            <div class="pagination">
+            <div class="pagination" style=" padding-left: 222px;">
                 {% if results.has_previous %}
                     <a href="?q={{ query }}&page=1">&laquo; first</a>
                     <a href="?q={{ query }}&page={{ results.previous_page_number }}">previous</a>
@@ -242,6 +261,10 @@
     <li>No results found.</li>
         {% endfor %}
           </ul>
+
+
+
+
 
        {% endif %}
 
