@@ -41,6 +41,10 @@
   <li class="nav-item " >
     <a class="nav-link active" href="{% url 'search' %}?q={{ query }}" type="button" >All</a>
   </li>
+
+
+
+
           <li class="nav-item" >
     <a class="nav-link" type="button"  href="{% url 'videos' query %}">Videos</a>
   </li>
@@ -81,79 +85,6 @@
 
 
 
-{#<ul id="search-results" style="list-style-type: none; padding-left: 222px;">#}
-{#  {% for item in page_obj %}#}
-{#    <li data-source="{{ item.source }}" draggable="true" data-targetIndex="{{ loop.index }}">#}
-{#      <h2><a href="{{ item.link }}">{{ item.title }}</a></h2>#}
-{#      <p id="{{ item.id_ }}">{{ item.snippet }}</p>#}
-{#    </li>#}
-{#  {% empty %}#}
-{#    <li>No results found.</li>#}
-{#  {% endfor %}#}
-{#</ul>#}
-
-
-
-
-{##}
-{#<ul id="search-results" style="list-style-type: none; padding-left: 222px;">#}
-{#  {% for item in page_obj %}#}
-{#    <li data-source="{{ item.source }}" draggable="true">#}
-{#      <h2><a href="{{ item.link }}">{{ item.title }}</a></h2>#}
-{#      <p id="{{ item.id_ }}">{{ item.snippet }}#}
-{#<a href="#" onclick="blockItem('{{ item.title }}', '{{ item.link }}', '{{ query }}')">#}
-{#  <i class="fas fa-ban" style="color: red;"></i>#}
-{##}
-{#</a>#}
-{##}
-{#      </p>#}
-{#    </li>#}
-{#  {% empty %}#}
-{#    <li>No results found.</li>#}
-{#  {% endfor %}#}
-{#</ul>#}
-{##}
-{##}
-{##}
-{##}
-{##}
-{##}
-{#<script>#}
-{#  function blockItem(title, link, query) {#}
-{#  var is_blocked = confirm("Are you sure you want to block this item?");#}
-{#  if (is_blocked) {#}
-{#    var form = document.createElement("form");#}
-{#    form.method = "POST";#}
-{#    form.action = "/block_item";#}
-{##}
-{#    var title_input = document.createElement("input");#}
-{#    title_input.type = "hidden";#}
-{#    title_input.name = "title";#}
-{#    title_input.value = title;#}
-{##}
-{#    var link_input = document.createElement("input");#}
-{#    link_input.type = "hidden";#}
-{#    link_input.name = "link";#}
-{#    link_input.value = link;#}
-{##}
-{#    var query_input = document.createElement("input");#}
-{#    query_input.type = "hidden";#}
-{#    query_input.name = "query";#}
-{#    query_input.value = query;#}
-{##}
-{#    form.appendChild(title_input);#}
-{#    form.appendChild(link_input);#}
-{#    form.appendChild(query_input);#}
-{##}
-{#    document.body.appendChild(form);#}
-{##}
-{#    form.submit();#}
-{#  }#}
-{#}#}
-{##}
-{#</script>#}
-
-
   {% if direct_bing %}
      <p style="padding-left: 222px;"> Direct bing search ( B: )  </p>
    {% elif limite_I %}
@@ -164,14 +95,37 @@
 
 
 
+{% if bing_results %}
+        <ul id="search-results" style="list-style-type: none; padding-left: 222px;">
+          {% for item in bing_results %}
+            <li>
+              <h2><a href="{{ item.url }}">{{ item.name }}</a></h2>
+                <a href="{{ item.url }}">{{ item.url }}</a>
+              <p> {{ item.snippet  }}
+              </p>
+            </li>
+          {% empty %}
+            <li>No results found.</li>
+          {% endfor %}
+    </ul>
 
-{#{% for result in bing_results.webPages.value %}#}
-{#    <div class="result">#}
-{#        <h3>{{ result.name }}</h3>#}
-{#        <p>{{ result.snippet }}</p>#}
-{#        <a href="{{ result.url }}">{{ result.url }}</a>#}
-{#    </div>#}
-{#{% endfor %}#}
+
+
+{% if page_obj %}
+
+<div style=" padding-left: 222px;">
+    {% for i in page_obj.paginator.page_range %}
+    <a href="?q={{ query }}&page={{ i }}">{{ i }}</a>
+{% endfor %}
+</div>
+
+    {% endif %}
+
+
+{% endif %}
+
+
+
 
 
 
@@ -426,139 +380,6 @@
 
 
 
-
-
-
-
-
-
-{##}
-{#<script>#}
-{#  var draggedItem = null;#}
-{##}
-{#  function handleDragStart(e) {#}
-{#    draggedItem = this;#}
-{#    this.classList.add('dragging'); // Add the "dragging" class to highlight the item#}
-{#    e.dataTransfer.effectAllowed = 'move';#}
-{#  }#}
-{##}
-{#  function handleDragOver(e) {#}
-{#    if (e.preventDefault) {#}
-{#      e.preventDefault();#}
-{#    }#}
-{#    e.dataTransfer.dropEffect = 'move';#}
-{#    return false;#}
-{#  }#}
-{##}
-{#  function handleDragLeave(e) {#}
-{#    this.classList.remove('over'); // Remove the "over" class#}
-{#  }#}
-{##}
-{#  function handleDrop(e) {#}
-{#    if (e.stopPropagation) {#}
-{#      e.stopPropagation();#}
-{#    }#}
-{#    if (draggedItem !== this) {#}
-{#      var source = draggedItem.getAttribute('data-source');#}
-{#      var target = this.getAttribute('data-source');#}
-{#      if (source === target) {#}
-{#        var parent = this.parentNode;#}
-{#        var items = parent.children;#}
-{#        var draggedIndex = Array.prototype.indexOf.call(items, draggedItem);#}
-{#        var targetIndex = Array.prototype.indexOf.call(items, this);#}
-{##}
-{#        if (draggedIndex < targetIndex) {#}
-{#          parent.insertBefore(draggedItem, this.nextSibling);#}
-{#        } else {#}
-{#          parent.insertBefore(draggedItem, this);#}
-{#        }#}
-{##}
-{#        // Get the title and link of the dragged item#}
-{#        var title = draggedItem.querySelector('a').innerText;#}
-{#        var link = draggedItem.querySelector('a').getAttribute('href');#}
-{##}
-{#        // Get the ID of the dragged item#}
-{#        var itemId = draggedItem.querySelector('p').getAttribute('id');#}
-{##}
-{#        // Set the targetIndex of all items in the list#}
-{#        [].forEach.call(items, function(item, index) {#}
-{#          item.setAttribute('data-targetIndex', index + 1);#}
-{#        });#}
-{##}
-{#        // Send the data to the update_position function#}
-{#        var xhr = new XMLHttpRequest();#}
-{#        xhr.open('POST', '/update_position');#}
-{#        xhr.setRequestHeader('Content-Type', 'application/json');#}
-{#        xhr.onload = function() {#}
-{#          if (xhr.status === 200) {#}
-{#            console.log(xhr.responseText);#}
-{#          } else {#}
-{#            console.log('Request failed.  Returned status of ' + xhr.status);#}
-{#          }#}
-{#        };#}
-{#        xhr.send(JSON.stringify({#}
-{#          'position': targetIndex + 1,#}
-{#          'id_': itemId,#}
-{#          'title': title,#}
-{#          'link': link#}
-{#        }));#}
-{#      }#}
-{#    }#}
-{#    return false;#}
-{#  }#}
-{##}
-{#  var items = document.querySelectorAll('#search-results li');#}
-{#  [].forEach.call(items, function(item, index) {#}
-{#    item.setAttribute('data-targetIndex', index + 1);#}
-{#    item.addEventListener('dragstart', handleDragStart, false);#}
-{#    item.addEventListener('dragover', handleDragOver, false);#}
-{#    item.addEventListener('dragleave', handleDragLeave, false);#}
-{#    item.addEventListener('drop', handleDrop, false);#}
-{#  });#}
-{#</script>#}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      {#function handleDrop(e) {#}
-      {#  if (e.stopPropagation) {#}
-      {#    e.stopPropagation();#}
-      {#  }#}
-      {#  if (draggedItem !== this) {#}
-      {#    var source = draggedItem.getAttribute('data-source');#}
-      {#    var target = this.getAttribute('data-source');#}
-      {#    if (source === target) {#}
-      {#      var parent = this.parentNode;#}
-      {#      var targetIndex = Array.prototype.indexOf.call(parent.children, this);#}
-      {#      var draggedIndex = Array.prototype.indexOf.call(parent.children, draggedItem);#}
-      {#      if (draggedIndex < targetIndex) {#}
-      {#        parent.insertBefore(draggedItem, this.nextSibling);#}
-      {#      } else {#}
-      {#        parent.insertBefore(draggedItem, this);#}
-      {#      }#}
-      {#    }#}
-      {#  }#}
-      {#  return false;#}
-      <!-- } -->
 
 
 
