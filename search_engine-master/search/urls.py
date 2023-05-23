@@ -3,10 +3,11 @@ from search.views import  search as main_search,  google_images_search as img_se
 from search.bing_search import *
 #from search.views1 import *
 from search.views  import *
-from search.views import  news
+from search.views import  news , fetch
 
 urlpatterns = [
     path('', index, name='index'),
+    path('fetch', fetch, name='fetch'),
     path('search', main_search, name='search'),
     path('google_images_search/<str:query>',img_search, name='google_images_search'),
 

@@ -35,5 +35,11 @@ wsproto==1.2.0
 scikit-learn==1.2.2
 gunicorn==20.1.0
 whitenoise
+elasticsearch
+dateutil
+requests
+bs4
+urllib
+concurrent
 
 
