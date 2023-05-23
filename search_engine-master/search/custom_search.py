@@ -36,7 +36,158 @@ def bing_search_custom(query, api_key=API_KEY, sites=None, url = None):
 
 
 
-def bing_search_custom_imgage(query, api_key=API_KEY, sites=None):
+# start code -  Images defs for custom search
+
+
+main_sites = ['https://www.Conservapedia.com',
+               'https://www.Ballotpedia.com',
+               'https://www.Trumpttrainnews.com',
+               'https://www.AmericanActionNews.com',
+                'https://www.AmericanDefenseNews.com',
+                'https://americanbriefing.com',
+                'https://goppresidential.com',
+                'https://americanupdate.com', #(also for lifestyle/celebrity key-terms)
+                'https://thehollywoodconservative.us', #(also for lifestyle/celebrity key-terms)
+                'https://prolifeupdate.com'
+]
+all_sites = [main_sites] #[[x] for x in main_sites ]
+news_sites  = [
+    'https://www.foxnews.com',
+    'https://www.theepochtimes.com',
+    'https://www.washingtonexaminer.com',
+    'https://www.theblaze.com',
+    'https://www.newsmax.com',
+    'https://www.westernjournal.com',
+    'https://www.dailywire.com',
+    'https://www.nationalreview.com',
+    'https://www.thegatewaypundit.com',
+    'https://www.dailycaller.com',
+    'https://www.washingtontimes.com',
+    'https://www.townhall.com',
+    'https://www.breitbart.com',
+    'https://www.freebeacon.com',
+    'https://www.thefederalist.com',
+    'https://www.dailysignal.com',
+    'https://www.nypost.com',
+    'https://www.pjmedia.com',
+    'https://www.zerohedge.com',
+    'https://www.wsj.com',
+    'https://www.oann.com',
+    'https://www.realclearpolitics.com',
+    'https://americasvoice.news',
+    'https://www..AIM.org '
+]
+
+
+social_site = [
+    'facebook.com',
+    'twitter.com',
+    'instagram.com',
+    'tiktok.com/en/',
+]
+
+other_sites  = [
+    "drudgereport.com",
+    "foxbusiness.com",
+    "americanthinker.com",
+    "twitchy.com",
+    "wnd.com",
+    "hotair.com",
+    "thelibertydaily.com",
+    "justthenews.com",
+    "theconservativetreehouse.com",
+    "Waynedupree.com",
+    "ocregister.com",
+    "reason.com",
+    "freerepublic.com",
+    "bizpacreview.com",
+    "powerlineblog.com",
+    "amgreatness.com",
+    "newsbusters.org",
+    "nationalinterest.org",
+    "blog.heritage.org",
+    "cbn.com",
+    "weaselzippers.us",
+    "100percentfedup.com",
+    "therightscoop.com",
+    "lucianne.com",
+    "theamericanconservative.com",
+    "frontpagemag.com",
+    "spectator.org",
+    "cnsnews.com",
+    "ijr.com",
+    "Cato.org",
+    "legalinsurrection.com",
+    "hannity.com",
+    "city-journal.org",
+    "thefederalistpapers.org",
+    "aei.org",
+    "wattsupwiththat.com",
+    "fee.org",
+    "mises.org",
+    "independentsentinel.com",
+    "judicialwatch.org",
+    "bearingarms.com",
+    "amren.com",
+    "chicksonright.com",
+    "freedomworks.org",
+    "firstthings.com",
+    "thepoliticalinsider.com",
+    "ricochet.com",
+    "hoover.org",
+    "sharylattkisson.com",
+    "linkiest.com",
+    "gopbriefingroom.com",
+    "crisismagazine.com",
+    "lifenews.com",
+    "lifezette.com",
+    "humanevents.com",
+    "christianitytoday.com",
+    "redstatewatcher.com",
+    "conservativereview.com",
+    "strategypage.com",
+    "libertynation.com",
+    "atr.org",
+    "marklevinshow.com",
+    "algemeiner.com",
+    "rushlimbaugh.com",
+    "steynonline.com",
+    "cis.org",
+    "weeklystandard.com",
+    "independent.org",
+    "blog.independent.org",
+    "muckrock.com",
+    "cagle.com",
+    "anncoulter.com",
+    "borderlandbeat.com"
+]
+
+[all_sites.append(x) for x in   [social_site, news_sites, other_sites]]
+
+all_sites = [[x.replace("https://www.", '') for x in list_url] for list_url in all_sites]
+all_sites = [[x.replace("https://", '') for x in list_url] for list_url in all_sites]
+
+
+
+
+
+
+
+from concurrent.futures import ThreadPoolExecutor
+import requests
+
+
+
+
+
+
+
+API_KEY =bing_api_key = 'a43dbec193c74e6f9d2041820d7dd47e'
+
+
+
+
+def custom_search_images(query, api_key=API_KEY, sites=None):
     api_key = API_KEY
     url = "https://api.bing.microsoft.com/v7.0/images/search"
     headers = {"Ocp-Apim-Subscription-Key": api_key}
@@ -61,14 +212,172 @@ def bing_search_custom_imgage(query, api_key=API_KEY, sites=None):
 
 
 
+def concurrent_search_for_custom_images_search(query, websites, search_fn, max_workers):
+    bing_api_key = API_KEY
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        search_tasks = [executor.submit(search_fn, query, bing_api_key, sites=site) for site in websites]
+        results = [task.result() for task in search_tasks]
 
-def concurrent_search(query, websites, search_fn, max_workers, url= None):
+    return results
+
+
+
+# end code Images defs for custom search
+
+
+
+
+# Start code -  videos defs for custom search
+
+def custom_search_for_videos(query, api_key=API_KEY, sites=None):
+    api_key = API_KEY
+    url = "https://api.bing.microsoft.com/v7.0/videos/search"
+    headers = {"Ocp-Apim-Subscription-Key": api_key}
+    headers = {
+        "Ocp-Apim-Subscription-Key": api_key,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+    }
+
+    if sites:
+        site_query = " OR ".join([f"site:{site}" for site in sites])
+        query = f"{query} {site_query}"
+    # print(len(str(query)))
+    params = {"q": query, "count": 20, "offset": 0}
+    response = requests.get(url, headers=headers, params=params)
+    print(response.status_code)
+    if response.status_code == 200:
+        return response.json()
+    else:
+
+        print(f"Error: {response.status_code}")
+        return None
+
+
+
+def concurrent_search_custom_search_for_videos(query, websites, search_fn, max_workers):
+    bing_api_key = API_KEY
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        search_tasks = [executor.submit(search_fn, query, bing_api_key, sites=site) for site in websites]
+        results = [task.result() for task in search_tasks]
+
+    return results
+
+
+# End code -  videos defs for custom search
+
+
+# Start code -  news defs for custom search
+news_sites  = [
+    'https://www.foxnews.com',
+    'https://www.theepochtimes.com',
+    'https://www.washingtonexaminer.com',
+    'https://www.theblaze.com',
+    'https://www.newsmax.com',
+    'https://www.westernjournal.com',
+    'https://www.dailywire.com',
+    'https://www.nationalreview.com',
+    'https://www.thegatewaypundit.com',
+    'https://www.dailycaller.com',
+    'https://www.washingtontimes.com',
+    'https://www.townhall.com',
+    'https://www.breitbart.com',
+    'https://www.freebeacon.com',
+    'https://www.thefederalist.com',
+    'https://www.dailysignal.com',
+    'https://www.nypost.com',
+    'https://www.pjmedia.com',
+    'https://www.zerohedge.com',
+    'https://www.wsj.com',
+    'https://www.oann.com',
+    'https://www.realclearpolitics.com',
+    'https://americasvoice.news',
+    'https://www..AIM.org '
+]
+
+
+from concurrent.futures import ThreadPoolExecutor
+import requests
+from concurrent import futures
+
+API_KEY = 'a43dbec193c74e6f9d2041820d7dd47e'
+def custom_news_search(query, api_key=API_KEY, sites=None, url = None):
+    if url == None:
+        url = "https://api.bing.microsoft.com/v7.0/search"
+    headers = {"Ocp-Apim-Subscription-Key": api_key}
+    headers = {
+        "Ocp-Apim-Subscription-Key": api_key,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+    }
+
+    if sites:
+        site_query = " OR ".join([f"site:{site}" for site in sites])
+        query = f"{query} {site_query}"
+    # print(len(str(query)))
+    params = {"q": query, "count": 10, "offset": 0}
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        # print(params)
+        # response = requests.get(url, headers=headers, params=params)
+        # if response.status_code == 200:
+        #     return response.json()
+        print(f"Error: {response.status_code}")
+        return None
+
+
+def concurrent_search_custom_news_search(query, websites, search_fn, max_workers, url= None):
     bing_api_key = API_KEY
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         search_tasks = [executor.submit(search_fn, query, bing_api_key, sites=site, url = url) for site in websites]
         results = [task.result() for task in futures.as_completed(search_tasks)]
+    return results
+
+# End code -  news defs for custom search
+
+
+# Start code -  custom web defs for custom search
+
+
+def search_custom_web(query, api_key=API_KEY, sites=None):
+    url = "https://api.bing.microsoft.com/v7.0/search"
+    headers = {
+        "Ocp-Apim-Subscription-Key": api_key,
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+    }
+
+    if sites:
+        site_query = " OR ".join([f"site:{site}" for site in sites])
+        query = f"{query} {site_query}"
+
+    params = {"q": query, "count": 20, "offset": 0}
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+
+
+def search_custom_web_concurrent_search(query, websites, search_fn, max_workers):
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        search_tasks = [executor.submit(search_fn, query, API_KEY, sites=site) for site in websites]
+        results = [task.result() for task in search_tasks]
 
     return results
+
+# End code -  custom web defs for custom search
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -144,137 +453,4 @@ def get_news_sites():
     #all_sites = [[x.replace("https://www.", '') for x in list_url] for list_url in all_sites]
     #all_sites = [[x.replace("https://", '') for x in list_url] for list_url in all_sites]
     return news_sites
-
-
-# main_sites = ['https://www.Conservapedia.com',
-#                'https://www.Ballotpedia.com',
-#                'https://www.Trumpttrainnews.com',
-#                'https://www.AmericanActionNews.com',
-#                 'https://www.AmericanDefenseNews.com',
-#                 'https://americanbriefing.com',
-#                 'https://goppresidential.com',
-#                 'https://americanupdate.com', #(also for lifestyle/celebrity key-terms)
-#                 'https://thehollywoodconservative.us', #(also for lifestyle/celebrity key-terms)
-#                 'https://prolifeupdate.com'
-# ]
-# #main_sites = [ x.site for x in Main_sites.objects.all() ]
-# all_sites = [[x] for x in main_sites ]
-# news_sites  = [
-#     'https://www.foxnews.com',
-#     'https://www.theepochtimes.com',
-#     'https://www.washingtonexaminer.com',
-#     'https://www.theblaze.com',
-#     'https://www.newsmax.com',
-#     'https://www.westernjournal.com',
-#     'https://www.dailywire.com',
-#     'https://www.nationalreview.com',
-#     'https://www.thegatewaypundit.com',
-#     'https://www.dailycaller.com',
-#     'https://www.washingtontimes.com',
-#     'https://www.townhall.com',
-#     'https://www.breitbart.com',
-#     'https://www.freebeacon.com',
-#     'https://www.thefederalist.com',
-#     'https://www.dailysignal.com',
-#     'https://www.nypost.com',
-#     'https://www.pjmedia.com',
-#     'https://www.zerohedge.com',
-#     'https://www.wsj.com',
-#     'https://www.oann.com',
-#     'https://www.realclearpolitics.com',
-#     'https://americasvoice.news',
-#     'https://www..AIM.org '
-# ]
-
-
-# social_site = [
-#     'facebook.com',
-#     'twitter.com',
-#     'instagram.com',
-#     'tiktok.com/en/',
-# ]
-
-# other_sites  = [
-#     "drudgereport.com",
-#     "foxbusiness.com",
-#     "americanthinker.com",
-#     "twitchy.com",
-#     "wnd.com",
-#     "hotair.com",
-#     "thelibertydaily.com",
-#     "justthenews.com",
-#     "theconservativetreehouse.com",
-#     "Waynedupree.com",
-#     "ocregister.com",
-#     "reason.com",
-#     "freerepublic.com",
-#     "bizpacreview.com",
-#     "powerlineblog.com",
-#     "amgreatness.com",
-#     "newsbusters.org",
-#     "nationalinterest.org",
-#     "blog.heritage.org",
-#     "cbn.com",
-#     "weaselzippers.us",
-#     "100percentfedup.com",
-#     "therightscoop.com",
-#     "lucianne.com",
-#     "theamericanconservative.com",
-#     "frontpagemag.com",
-#     "spectator.org",
-#     "cnsnews.com",
-#     "ijr.com",
-#     "Cato.org",
-#     "legalinsurrection.com",
-#     "hannity.com",
-#     "city-journal.org",
-#     "thefederalistpapers.org",
-#     "aei.org",
-#     "wattsupwiththat.com",
-#     "fee.org",
-#     "mises.org",
-#     "independentsentinel.com",
-#     "judicialwatch.org",
-#     "bearingarms.com",
-#     "amren.com",
-#     "chicksonright.com",
-#     "freedomworks.org",
-#     "firstthings.com",
-#     "thepoliticalinsider.com",
-#     "ricochet.com",
-#     "hoover.org",
-#     "sharylattkisson.com",
-#     "linkiest.com",
-#     "gopbriefingroom.com",
-#     "crisismagazine.com",
-#     "lifenews.com",
-#     "lifezette.com",
-#     "humanevents.com",
-#     "christianitytoday.com",
-#     "redstatewatcher.com",
-#     "conservativereview.com",
-#     "strategypage.com",
-#     "libertynation.com",
-#     "atr.org",
-#     "marklevinshow.com",
-#     "algemeiner.com",
-#     "rushlimbaugh.com",
-#     "steynonline.com",
-#     "cis.org",
-#     "weeklystandard.com",
-#     "independent.org",
-#     "blog.independent.org",
-#     "muckrock.com",
-#     "cagle.com",
-#     "anncoulter.com",
-#     "borderlandbeat.com"
-# ]
-
-# [all_sites.append(x) for x in   [social_site, news_sites, other_sites]]
-
-# all_sites = [[x.replace("https://www.", '') for x in list_url] for list_url in all_sites]
-# all_sites = [[x.replace("https://", '') for x in list_url] for list_url in all_sites]
-
-
-
 

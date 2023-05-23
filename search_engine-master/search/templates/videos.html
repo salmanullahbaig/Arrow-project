@@ -74,7 +74,7 @@
 
 <div >
 
-
+{% if filtered_results %}
   <ul style="list-style-type: none; padding-left: 222px;">
 
        {% for result in filtered_results %}
@@ -92,10 +92,10 @@
     {% endfor %}
 
         </ul>
+{% endif %}
 
 
-
-
+{% if page_obj %}
         <ul style="list-style-type: none; padding-left: 222px;">
 
        {% for video in page_obj %}
@@ -111,8 +111,28 @@
     {% endif %}
 
         </ul>
+{% endif %}
 
 
+
+
+{% if custom_videos %}
+        <ul style="list-style-type: none; padding-left: 222px;">
+
+       {% for video in custom_videos %}
+              <h4>{{ video.name }} </h4>
+                <li>
+                <a href="{{ video.hostUrl  }}" target="_blank">{{ video.url }}</a>
+            </li>
+
+    {% endfor %}
+
+    {% if not custom_videos %}
+        <p>No videos found.</p>
+    {% endif %}
+
+        </ul>
+{% endif %}
 
 
 

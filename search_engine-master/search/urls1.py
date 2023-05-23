@@ -5,7 +5,7 @@ from search.general_Bing_search import *
 
 urlpatterns = [
     #path('', views1.index, name='index'),
-   # path('search', views1.search, name='search'),
+   #path('search', views1.search, name='search'),
     path('adminsearch', views1.adminsearch, name='adminsearch'),
     path('adminsearchindexing', views1.adminsearchindexing, name='adminsearchindexing'),
     #path('google_images_search/<str:query>', views1.google_images_search, name='google_images_search'),

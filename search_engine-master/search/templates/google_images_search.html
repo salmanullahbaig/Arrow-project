@@ -84,15 +84,15 @@
 {#  </div>#}
 
 
-{#{% for result in results %}#}
-{#    <div class="col">#}
-{#      <div class="card">#}
-{#        <img src="{{ result.4 }}" class="card-img-top" alt="Link is broken">#}
-{#      </div>#}
-{#    </div>#}
-{#  {% empty %}#}
-{#    <p>No results found.</p>#}
-{#  {% endfor %}#}
+{% for result in results %}
+    <div class="col">
+      <div class="card">
+        <img src="{{ result.4 }}" class="card-img-top" alt="Link is broken">
+      </div>
+    </div>
+  {% empty %}
+    <p>No results found.</p>
+  {% endfor %}
 
 
 

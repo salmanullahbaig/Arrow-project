@@ -90,7 +90,7 @@
    {% elif limite_I %}
       <p style="padding-left: 222px;"> Search ( I: )  </p>
   {% else %}
-      <p style="padding-left: 222px;">  Specific websites search </p>
+      <p style="padding-left: 222px;">  Custom websites search </p>
   {% endif %}
 
 
@@ -217,14 +217,26 @@
           </ul>
 
 
-
-
-
        {% endif %}
 
 
 
+  {% if sites %}
 
+          <ul id="search-results" style="list-style-type: none; padding-left: 222px;">
+      {% for result in sites %}
+          <li>
+                <h2>{{ result.name }}</h2>
+                <a href="{{ result.url }}">{{ result.displayUrl }}</a>
+                <p>{{ result.snippet }}</p>
+          </li>
+            {% empty %}
+    <li>No results found.</li>
+        {% endfor %}
+          </ul>
+
+
+       {% endif %}
 
 
 

@@ -10,6 +10,8 @@ from search.custom_search import *
 from search.general_Bing_search import bing_search_images , bing_news_search , bing_search_videos
 
 from search_engine import settings as s #API_KEY
+from search.self_indexing import I_search
+
 
 bing_api_key = s.API_KEY 
 API_KEY = s.API_KEY
@@ -48,36 +50,74 @@ def search(request):
         if not query.startswith('B:'):
             query = f'B:{query}'
         return render(request, 'search.html', locals())
-    elif 'c:' in query or ':'  not in query:
-        # Get the current page number from the GET parameters
-        results_concurrent = concurrent_search(query, all_sites, bing_search_custom, max_workers=len(all_sites))
+    elif 'I:' in query:
+        query = query.replace('I:', '')
+        top_n = 20
+        results = I_search(query, top_n)
+            # Set the number of results per page
+        results_per_page = 5
+
+            # Create a paginator object
+        paginator = Paginator(results, results_per_page)
+
+            # Get the current page number from the GET parameters
+        page_number = request.GET.get('page')
+
+            # Get the results for the current page
+        page_obj = paginator.get_page(page_number)
+        results = page_obj
+        limite_I = "Limited I: search"
+        if not query.startswith('I:'):
+            query = f'I:{query}'
+        return render(request, 'search.html', locals())
+    # elif 'c:' in query or ':'  not in query:
+    #     # Get the current page number from the GET parameters
+    #     results_concurrent = concurrent_search(query, all_sites, bing_search_custom, max_workers=len(all_sites))
+    #
+    #     all_results = []
+    #     for site_group in results_concurrent:
+    #         try:
+    #             #print(len(site_group["webPages"]["value"]))
+    #             all_results.extend(site_group["webPages"]["value"])
+    #         except:
+    #             pass
+    #
+    #     url_order = []
+    #     [[url_order.append(x) for x in group] for group in all_sites if group]
+    #
+    #
+    #     def sort_by_url_order(result):
+    #         for i, base_url in enumerate(url_order):
+    #             if result['url'].startswith(base_url):
+    #                 return i
+    #         return len(url_order)
+    #
+    #     sorted_results = sorted(all_results, key=sort_by_url_order)
+    #     main_words_list = get_main_words(query)
+    #     main_words = ' '.join(main_words_list)
+    #     # # Replace with your search function, e.g., bing_search or google_search
+    #     results = sorted_results
+    #     # # Filter the results by relevance
+    #     relevance_threshold = 1
+    #     filtered_results = filter_results_by_relevance(results, main_words, relevance_threshold)
+    else:
+        results_concurrent = search_custom_web_concurrent_search(query, all_sites, search_custom_web,
+                                                                 max_workers=len(all_sites))
 
         all_results = []
         for site_group in results_concurrent:
             try:
-                #print(len(site_group["webPages"]["value"]))
                 all_results.extend(site_group["webPages"]["value"])
             except:
                 pass
-            
-        url_order = []
-        [[url_order.append(x) for x in group] for group in all_sites if group]
-        
 
-        def sort_by_url_order(result):
-            for i, base_url in enumerate(url_order):
-                if result['url'].startswith(base_url):
-                    return i
-            return len(url_order)
-
-        sorted_results = sorted(all_results, key=sort_by_url_order)
-        main_words_list = get_main_words(query)
-        main_words = ' '.join(main_words_list)
-        # # Replace with your search function, e.g., bing_search or google_search
-        results = sorted_results
-        # # Filter the results by relevance
-        relevance_threshold = 1
-        filtered_results = filter_results_by_relevance(results, main_words, relevance_threshold)
+        sites = [{'url': x['url'], 'displayUrl': x['displayUrl'], 'name': x['name'], 'snippet': x['snippet']} for x in all_results]
+        for i in sites:
+            print("URL:", i['url'])
+            print("displayUrl:", i['displayUrl'])
+            print("name:", i['name'])
+            print("snippet:", i['snippet'])
+            print()
 
     return render(request, 'search.html', locals())
 
@@ -138,22 +178,38 @@ def google_images_search(request,query):
                 result[4] = image_url[0] if image_url else None
             else:
                 result[4] = image_url
+
+        # Print the modified results
+        for result in results:
+            print("Title:", result[0])
+            print("URL:", result[1])
+            print("Snippet:", result[2])
+            print("Video Source:", result[3])
+            print("Image URL:", result[4])
+            print("Similarity Score:", result[5])
+            print()  # Adding an empty line for better readability
+
         if not query.startswith('I:'):
             query = f'I:{query}'
         limite_I = "Limited I: search"
         return render(request, 'google_images_search.html', locals())
     else:
-        results_concurrent = concurrent_search(query, all_sites, bing_search_custom_imgage, max_workers=len(all_sites)) 
+        # query = "apple"
+        results_concurrent = concurrent_search_for_custom_images_search(query, all_sites, custom_search_images,max_workers=len(all_sites))
 
         all_results = []
         for site_group in results_concurrent:
-            try:all_results.extend(site_group["value"])
-            except:pass
+            try:
+                all_results.extend(site_group["value"])
+            except:
+                pass
 
-        images = [ { 'url': x['contentUrl'], 'hostUrl' : x['hostPageUrl'] } for x in  all_results]
+        images = [{'url': x['contentUrl'], 'hostUrl': x['hostPageUrl']} for x in all_results]
 
-        #bing_result_images = bing_search_images(query, bing_api_key, pignation_no = 0)
-        #print("bing_result_images", bing_result_images)
+        # for image in images:
+        #     print("Image URL:", image['url'])
+        #     print("Host URL:", image['hostUrl'])
+        #     print()  # Adding an empty line for better readability
 
     return render(request, 'google_images_search.html', locals())
 
@@ -206,27 +262,45 @@ def videos(request,query):
         limite_I = "Limited I: search"
         return render(request, 'videos.html', locals())
     else:
-        bing_api_key = API_KEY  # Replace with your Bing API key
-        videos = []
-        page_number = int(request.GET.get('page', 1))
+        # bing_api_key = API_KEY  # Replace with your Bing API key
+        # videos = []
+        # page_number = int(request.GET.get('page', 1))
+        #
+        # # Call Bing API with pagination
+        # for offset in range((page_number - 1) * 50, page_number * 50, 50):
+        #     bing_results = bing_search_videos(query, bing_api_key, offset)
+        #     print("bing_results v ", bing_results)
+        #     for item in bing_results.get("value", []):
+        #         name = item["name"]
+        #         url = item["contentUrl"]
+        #         videos.append({"name": name, "url": url})
+        # print(videos)
+        # # Use Django's built-in paginator to paginate the results
+        # paginator = Paginator(videos, 10)
+        # page_obj = paginator.get_page(page_number)
 
-        # Call Bing API with pagination
-        for offset in range((page_number - 1) * 50, page_number * 50, 50):
-            bing_results = bing_search_videos(query, bing_api_key, offset)
-            print("bing_results v ", bing_results)
-            for item in bing_results.get("value", []):
-                name = item["name"]
-                url = item["contentUrl"]
-                videos.append({"name": name, "url": url})
-        print(videos)
-        # Use Django's built-in paginator to paginate the results
-        paginator = Paginator(videos, 10)
-        page_obj = paginator.get_page(page_number)
+        x_sites = []
+        for x in all_sites:
+            for y in x: x_sites.append(y)
+
+        results_concurrent = concurrent_search_custom_search_for_videos(query, [x_sites], custom_search_for_videos,
+                                                                        max_workers=len([0]))
+
+        all_results = []
+        for site_group in results_concurrent:
+            try:
+                all_results.extend(site_group["value"])
+            except:
+                pass
+        custom_videos = [{'url': x['contentUrl'], 'hostUrl': x['hostPageUrl'], 'name': x['name']} for x in all_results]
+
+        for image in custom_videos:
+            print("name  URL:", image['name'])
+            print("video  URL:", image['url'])
+            print("video URL:", image['hostUrl'])
+            print()  # Adding an empty line for better readability
 
 
-
-
-    #bing_video_list    = bing_video(query)
     return render(request, 'videos.html', locals())
 
 
@@ -271,35 +345,78 @@ def news(request , query):
         if not query.startswith('B:'):
             query = f'B:{query}'
         return render(request, 'news.html', locals())
-    else:
+    elif 'I:' in query:
+        query = query.replace('I:', '')
+        top_n = 20
+        results = I_search(query, top_n)
+        # Set the number of results per page
+        results_per_page = 5
+
+        # Create a paginator object
+        paginator = Paginator(results, results_per_page)
+
         # Get the current page number from the GET parameters
-        results_concurrent = concurrent_search(query, all_sites, bing_search_custom, max_workers=len(all_sites))
+        page_number = request.GET.get('page')
+
+        # Get the results for the current page
+        page_obj = paginator.get_page(page_number)
+        results = page_obj
+        limite_I = "Limited I: search"
+        if not query.startswith('I:'):
+            query = f'I:{query}'
+        return render(request, 'news.html', locals())
+    else:
+        # # Get the current page number from the GET parameters
+        # results_concurrent = concurrent_search(query, all_sites, bing_search_custom, max_workers=len(all_sites))
+        #
+        # all_results = []
+        # for site_group in results_concurrent:
+        #     try:
+        #         #print(len(site_group["webPages"]["value"]))
+        #         all_results.extend(site_group["webPages"]["value"])
+        #     except:
+        #         pass
+        # url_order = []
+        # [[url_order.append(x) for x in group] for group in all_results]
+        #
+        # def sort_by_url_order(result):
+        #     for i, base_url in enumerate(url_order):
+        #         if result['url'].startswith(base_url):
+        #             return i
+        #     return len(url_order)
+        #
+        # sorted_results = sorted(all_results, key=sort_by_url_order)
+        # main_words_list = get_main_words(query)
+        # main_words = ' '.join(main_words_list)
+        # # # Replace with your search function, e.g., bing_search or google_search
+        # results = sorted_results
+        # # # Filter the results by relevance
+        # relevance_threshold = 1
+        # filtered_results = filter_results_by_relevance(results, main_words, relevance_threshold)
+
+        results_concurrent = concurrent_search_custom_news_search(query, [news_sites], custom_news_search,
+                                                                  max_workers=len([0]))
 
         all_results = []
-        for site_group in results_concurrent:
+        for site_group in [results_concurrent]:
             try:
-                #print(len(site_group["webPages"]["value"]))
+                # print(len(site_group["webPages"]["value"]))
                 all_results.extend(site_group["webPages"]["value"])
             except:
                 pass
+
         url_order = []
-        [[url_order.append(x) for x in group] for group in all_results]
+        [[url_order.append(x) for x in group] for group in news_sites if group]
 
-        def sort_by_url_order(result):
-            for i, base_url in enumerate(url_order):
-                if result['url'].startswith(base_url):
-                    return i
-            return len(url_order)
+        # results_concurrent[0]['webPages']['value']
 
-        sorted_results = sorted(all_results, key=sort_by_url_order)
-        main_words_list = get_main_words(query)
-        main_words = ' '.join(main_words_list)
-        # # Replace with your search function, e.g., bing_search or google_search
-        results = sorted_results
-        # # Filter the results by relevance
-        relevance_threshold = 1
-        filtered_results = filter_results_by_relevance(results, main_words, relevance_threshold)
-
+        # for result in results_concurrent[0]['webPages']['value']:
+        #     print("Name:", result['name'])
+        #     print("URL:", result['url'])
+        #     print("Snippet:", result['snippet'])
+        #     print("Display URL:", result['displayUrl'])
+        #     print()  # Adding an empty line for better readability
+        custom_s = "Custom Search"
 
     return render(request, 'news.html', locals())
 
