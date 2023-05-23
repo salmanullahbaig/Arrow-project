@@ -1,0 +1,8 @@
+
+whitenoise
+elasticsearch
+dateutil
+requests
+bs4
+urllib
+concurrent
