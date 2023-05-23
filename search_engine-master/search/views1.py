@@ -1109,7 +1109,6 @@ from search.custom_search import *
 
 
 def adminsearch(request):
-    pass
     return render(request, 'adminsearch.html',locals())
 
 
@@ -1333,92 +1332,9 @@ def adminsearchindexing(request):
 #     response = requests.get(url, headers=headers, params=params)
 #     return response.json()
 
-def bing_search_images_2(query, api_key ,  pignation_no = 0):
-    url = "https://api.bing.microsoft.com/v7.0/images/search"
-    headers = {"Ocp-Apim-Subscription-Key": api_key}
-    params = {"q": query, "count": 10, "offset": int(pignation_no) * 10, "imageType": "photo"}
-
-    response = requests.get(url, headers=headers, params=params)
-    if response.status_code == 200:
-        result = response.json()
-        return result
-    else:
-        return []
-        return response.json()
-
-
-def google_images_search(request,query):
-
-    #images
-    # result_images = google_search_images(query, search_type="image")
-    # images_items = result_images.get("items", [])
-    # image_urls = [item.get("link", "") for item in images_items]
-    # print("image_urls",image_urls)
-    # bing_api_key = "0d41c358d3054032848a866956b9a9f5"  # Replace with your Bing API key
-    # bing_results = bing_search_images_2(query, bing_api_key)
-    # image_urls = []
-    # for item in bing_results.get("value", []):
-    #     image_urls.append(item['contentUrl'])
-    # #for i in image_urls:
-    # print("i: ",image_urls)
 
 
 
-    if 'B:' in query:
-        query = query.replace('B:', '')
-
-        # Get the current page number from the GET parameters
-        page_number = request.GET.get('page')
-        if page_number == None:
-            page_number = 0
-        bing_api_key = "79407ee4a67041b5a12cbe23c684dbe5"  # Replace with your Bing API key
-        bing_results = bing_search_images_2(query, bing_api_key,pignation_no=int(page_number))
-        images = []
-        for image in bing_results['value']:
-            images.append({'url': image['thumbnailUrl'], 'hostUrl': image['hostPageUrl']})
-
-        print(len(images))
-        print(images)
-
-        # Set the number of results per page
-        results_per_page = 1
-        # Create a paginator object
-        paginator = Paginator(images, results_per_page)
-        # Get the results for the current page
-        page_obj = paginator.get_page(page_number)
-
-
-
-        #bing_result_images = bing_images(query)
-        #print("bing_result_images", bing_result_images)
-        direct_bing = "Direct bing"
-        if not query.startswith('B:'):
-            query = f'B:{query}'
-        return render(request, 'google_images_search.html', locals())
-    elif 'I:' in query:
-        query = query.replace('I:', '')
-        top_n = 20
-        results = I_search(query, top_n)
-        # Convert the results to a list of lists
-        results = [list(result) for result in results]
-
-        # Convert the image URLs to strings
-        for result in results:
-            title, url, snippet, video_src, image_url, similarity_score = result
-            if isinstance(image_url, list):
-                result[4] = image_url[0] if image_url else None
-            else:
-                result[4] = image_url
-        if not query.startswith('I:'):
-            query = f'I:{query}'
-        limite_I = "Limited I: search"
-        return render(request, 'google_images_search.html', locals())
-    else:
-        pass
-        bing_result_images = bing_images(query)
-        #print("bing_result_images", bing_result_images)
-
-    return render(request, 'google_images_search.html', locals())
 
 
 def google_search_news_2(query):
@@ -1455,121 +1371,11 @@ def bing_search_news_2(query, api_key, offset=0):
     return response.json()
 
 
-def news(request, query):
-    # news
-   # news_list = get_news(query)
-    #news_list = google_search_news_2(query)
-    #bing_news_list = bing_news(query)
-    # bing_api_key = "0d41c358d3054032848a866956b9a9f5"  # Replace with your Bing API key
-    #
-    # page_number = request.GET.get('page', 1)
-    # offset = (int(page_number) - 1) * 50
-    # bing_news_list = bing_search_news_2(query, bing_api_key, offset)
-    #
-    # paginator = Paginator(bing_news_list['value'], 10)
-    #
-    # page_obj = paginator.get_page(page_number)
-    #
-    # context = {
-    #     'bing_results': page_obj,
-    #     #'news_list': news_list,
-    #     'query': query,
-    # }
-    top_n = 30
-    results = I_search(query, top_n)
-    # Set the number of results per page
-    results_per_page = 10
-
-    # Create a paginator object
-    paginator = Paginator(results, results_per_page)
-
-    # Get the current page number from the GET parameters
-    page_number = request.GET.get('page')
-
-    # Get the results for the current page
-    page_obj = paginator.get_page(page_number)
-
-
-    return render(request, 'news.html', locals())
-
-
-
-def bing_search_videos_2(query, api_key, offset=0):
-    url = "https://api.bing.microsoft.com/v7.0/videos/search"
-    headers = {"Ocp-Apim-Subscription-Key": api_key}
-    params = {"q": query, "count": 50, "offset": offset, "responseFilter": "Video"}
-
-    response = requests.get(url, headers=headers, params=params)
-    return response.json()
-
-
-def videos(request,query):
-    #videos
-    #video_results = get_video_results(query)
-    if 'B:' in query:
-        query = query.replace('B:', '')
-        bing_api_key = "79407ee4a67041b5a12cbe23c684dbe5"  # Replace with your Bing API key
-        videos = []
-        page_number = int(request.GET.get('page', 1))
-
-        # Call Bing API with pagination
-        for offset in range((page_number - 1) * 50, page_number * 50, 50):
-            bing_results = bing_search_videos_2(query, bing_api_key, offset)
-            print("bing_results v ",bing_results)
-            for item in bing_results.get("value", []):
-                name = item["name"]
-                url = item["contentUrl"]
-                videos.append({"name": name, "url": url})
-        print(videos)
-        # Use Django's built-in paginator to paginate the results
-        paginator = Paginator(videos, 10)
-        page_obj = paginator.get_page(page_number)
-
-        direct_bing = "Direct bing"
-        if not query.startswith('B:'):
-            query = f'B:{query}'
-        return render(request, 'videos.html', locals())
-    elif 'I:' in query:
-        query = query.replace('I:', '')
-        top_n = 20
-        results = I_search(query, top_n)
-        print("results : ",results)
-        filtered_results = []
-
-        for result in results:
-            title, url, snippet, video_src, image_url, similarity_score = result
-            try:
-                if video_src.startswith("https"):
-                    filtered_results.append(result)
-            except:
-                pass
-        if not query.startswith('I:'):
-            query = f'I:{query}'
-        limite_I = "Limited I: search"
-        return render(request, 'videos.html', locals())
-    else:
-        bing_api_key = "79407ee4a67041b5a12cbe23c684dbe5"  # Replace with your Bing API key
-        videos = []
-        page_number = int(request.GET.get('page', 1))
-
-        # Call Bing API with pagination
-        for offset in range((page_number - 1) * 50, page_number * 50, 50):
-            bing_results = bing_search_videos_2(query, bing_api_key, offset)
-            print("bing_results v ", bing_results)
-            for item in bing_results.get("value", []):
-                name = item["name"]
-                url = item["contentUrl"]
-                videos.append({"name": name, "url": url})
-        print(videos)
-        # Use Django's built-in paginator to paginate the results
-        paginator = Paginator(videos, 10)
-        page_obj = paginator.get_page(page_number)
 
 
 
 
-    #bing_video_list    = bing_video(query)
-    return render(request, 'videos.html', locals())
+
 
 
 import json

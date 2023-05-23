@@ -73,6 +73,44 @@
 
 
 
+  {% if direct_bing %}
+     <p style="padding-left: 222px;"> Direct bing search ( B: )  </p>
+   {% elif limite_I %}
+      <p style="padding-left: 222px;"> Search ( I: )  </p>
+  {% else %}
+      <p style="padding-left: 222px;">  Specific websites search </p>
+  {% endif %}
+
+
+
+{% if bing_results %}
+        <ul id="search-results" style="list-style-type: none; padding-left: 222px;">
+          {% for item in bing_results %}
+            <li>
+              <h2><a href="{{ item.url }}">{{ item.name }}</a></h2>
+                <a href="{{ item.url }}">{{ item.url }}</a>
+              <p> {{ item.snippet  }}
+              </p>
+            </li>
+          {% empty %}
+            <li>No results found.</li>
+          {% endfor %}
+    </ul>
+
+
+
+{% if page_obj %}
+
+<div style=" padding-left: 222px;">
+    {% for i in page_obj.paginator.page_range %}
+    <a href="?q={{ query }}&page={{ i }}">{{ i }}</a>
+{% endfor %}
+</div>
+
+    {% endif %}
+
+
+{% endif %}
 
 {#        <ul style="list-style-type: none; padding-left: 222px;">#}
 {##}
@@ -105,7 +143,7 @@
 
 
 
-    {% if results %}
+    {% comment %} {% if results %}
         <ul style="list-style-type: none; padding-left: 222px;">
         {% for item in results %}
             <h2>{{ item.0 }}</h2>
@@ -135,7 +173,7 @@
                 <a href="?q={{ query }}&page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
             {% endif %}
         </span>
-    </div>
+    </div> {% endcomment %}
 
 
 {#<div class="pagination" style=" padding-left: 222px;">#}
