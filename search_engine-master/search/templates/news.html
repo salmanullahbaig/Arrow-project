@@ -77,6 +77,8 @@
      <p style="padding-left: 222px;"> Direct bing search ( B: )  </p>
    {% elif limite_I %}
       <p style="padding-left: 222px;"> Search ( I: )  </p>
+   {% elif Elasticsearch %}
+            <p style="padding-left: 222px;">  {{ Elasticsearch }} </p>
   {% else %}
       <p style="padding-left: 222px;">  Custom websites search </p>
   {% endif %}
@@ -174,6 +176,32 @@
 
 
 {% endif %}
+
+
+
+
+
+{% if hits  %}
+        <ul id="search-results" style="list-style-type: none; padding-left: 222px;">
+          {% for item in hits  %}
+            <li>
+              <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+                <a href="{{ item.url }}">{{ item.url }}</a>
+              <p> {{ item.snippet  }}
+              </p>
+            </li>
+          {% empty %}
+            <li>No results found.</li>
+          {% endfor %}
+    </ul>
+
+{% endif %}
+
+
+
+
+
+
 
 
 

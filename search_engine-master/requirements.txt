@@ -36,6 +36,6 @@ scikit-learn==1.2.2
 gunicorn==20.1.0
 elasticsearch==8.7.0
 python-dateutil==2.5.3
-whitenoise
+whitenoise==6.4.0
 
 

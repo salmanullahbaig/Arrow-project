@@ -11,7 +11,7 @@ from search.general_Bing_search import bing_search_images , bing_news_search , b
 
 from search_engine import settings as s #API_KEY
 from search.self_indexing import I_search
-
+from search.ElasticSearch import elasticsearch_images,elasticsearch_news,elasticsearch_web
 
 bing_api_key = s.API_KEY 
 API_KEY = s.API_KEY
@@ -50,8 +50,9 @@ def search(request):
         if not query.startswith('B:'):
             query = f'B:{query}'
         return render(request, 'search.html', locals())
-    elif 'I:' in query:
+    elif 'I:' in query or 'i:' in query:
         query = query.replace('I:', '')
+        query = query.replace('i:', '')
         top_n = 20
         results = I_search(query, top_n)
             # Set the number of results per page
@@ -70,6 +71,37 @@ def search(request):
         if not query.startswith('I:'):
             query = f'I:{query}'
         return render(request, 'search.html', locals())
+    elif 'E:' in query or 'e:' in query:
+        query = query.replace('E:', '')
+        query = query.replace('e:', '')
+
+        res = elasticsearch_web(query)
+
+        # Process search results
+        hits = []
+        for hit in res['hits']['hits']:
+            hit_data = {
+                "url": hit['_source']['url'],
+                "title": hit['_source']['title'],
+                "content": hit['_source']['content'][:100] + '...',  # Limit content to 100 characters
+                "timestamp": hit['_source']['time']
+            }
+            hits.append(hit_data)
+
+        # for hit in res['hits']['hits']:
+        #     print(f"URL: {hit['_source']['url']}")
+        #     print(f"Title: {hit['_source']['title']}")
+        #     print(f"Content: {hit['_source']['content'][:100]}...")  # print the first 100 characters
+        #     print(f"Timestamp: {hit['_source']['time']}")
+        #     print("===============================================")
+
+        Elasticsearch = "Elastic search"
+        if not query.startswith('E:'):
+            query = f'E:{query}'
+        return render(request, 'search.html', locals())
+
+
+
     # elif 'c:' in query or ':'  not in query:
     #     # Get the current page number from the GET parameters
     #     results_concurrent = concurrent_search(query, all_sites, bing_search_custom, max_workers=len(all_sites))
@@ -164,8 +196,32 @@ def google_images_search(request,query):
         if not query.startswith('B:'):
             query = f'B:{query}'
         return render(request, 'google_images_search.html', locals())
-    elif 'I:' in query:
+    elif 'E:' in query or 'e:' in query:
+        query = query.replace('E:', '')
+        query = query.replace('e:', '')
+
+        res = elasticsearch_images(query)
+        # Process image search results
+        hits = []
+        for hit in res["hits"]["hits"]:
+            hit_data = {
+                "title": hit["_source"]["title"],
+                "url": hit["_source"]["url"],
+                "host_url": hit["_source"]["hostUrl"]
+            }
+            hits.append(hit_data)
+        # for hit in res["hits"]["hits"]:
+        #     print(hit["_source"]["title"])
+        #     print(hit["_source"]["url"])
+        #     print(hit["_source"]["hostUrl"])
+
+        Elasticsearch = "Elastic search"
+        if not query.startswith('E:'):
+            query = f'E:{query}'
+        return render(request, 'google_images_search.html', locals())
+    elif 'I:' in query or 'i:' in query:
         query = query.replace('I:', '')
+        query = query.replace('i:', '')
         top_n = 20
         results = I_search(query, top_n)
         # Convert the results to a list of lists
@@ -243,8 +299,9 @@ def videos(request,query):
         if not query.startswith('B:'):
             query = f'B:{query}'
         return render(request, 'videos.html', locals())
-    elif 'I:' in query:
+    elif 'I:' in query or 'i:' in query:
         query = query.replace('I:', '')
+        query = query.replace('i:', '')
         top_n = 20
         results = I_search(query, top_n)
         print("results : ",results)
@@ -345,8 +402,32 @@ def news(request , query):
         if not query.startswith('B:'):
             query = f'B:{query}'
         return render(request, 'news.html', locals())
-    elif 'I:' in query:
+    elif 'E:' in query or 'e:' in query:
+        query = query.replace('E:', '')
+        query = query.replace('e:', '')
+
+        res = elasticsearch_news(query)
+        # Process news search results
+        hits = []
+        for hit in res["hits"]["hits"]:
+            snippet = hit["_source"]["snippet"]
+            snippet_words = snippet.split()[:20]  # Limit to the first 50 words
+            snippet_shortened = " ".join(snippet_words)
+
+            hit_data = {
+                "title": hit["_source"]["title"],
+                "url": hit["_source"]["url"],
+                "snippet": snippet_shortened
+            }
+            hits.append(hit_data)
+
+        Elasticsearch = "Elastic search"
+        if not query.startswith('E:'):
+            query = f'E:{query}'
+        return render(request, 'news.html', locals())
+    elif 'I:' in query or 'i:' in query:
         query = query.replace('I:', '')
+        query = query.replace('i:', '')
         top_n = 20
         results = I_search(query, top_n)
         # Set the number of results per page

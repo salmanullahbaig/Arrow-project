@@ -61,8 +61,19 @@
          </li>
 
 </ul>
-<div >
+
   <div class="" >
+  {% if direct_bing %}
+     <p style="padding-left: 222px;"> Direct bing search ( B: )  </p>
+   {% elif limite_I %}
+      <p style="padding-left: 222px;"> Search ( I: )  </p>
+   {% elif Elasticsearch %}
+            <p style="padding-left: 222px;">  {{ Elasticsearch }} </p>
+
+  {% else %}
+      <p style="padding-left: 222px;">  Custom websites search </p>
+  {% endif %}
+
 
 <div class="row row-cols-1 row-cols-md-3 g-3">
 {#  {% for image_url in image_urls %}#}
@@ -83,7 +94,7 @@
 {#    {% endfor %}#}
 {#  </div>#}
 
-
+{% if results %}
 {% for result in results %}
     <div class="col">
       <div class="card">
@@ -94,9 +105,9 @@
     <p>No results found.</p>
   {% endfor %}
 
+{% endif %}
 
-
-
+{% if images %}
   {% for i in images %}
     <div class="col">
       <div class="card">
@@ -107,21 +118,48 @@
   {% empty %}
     <p>No results found.</p>
   {% endfor %}
+{% endif %}
 
 
 
 
+  {% if hits %}
+
+  {% for i in hits %}
+    <div class="col">
+      <div class="card">
+          <a href="{{ i.hostUrl }}">
+        <img src="{{ i.url }}" class="card-img-top" alt="Link is broken"></a>
+      </div>
+    </div>
+  {% empty %}
+    <p>No results found.</p>
+  {% endfor %}
+{% endif %}
 
 
 </div>
 
+  {% if page_obj.paginator.page_range %}
 <div style=" padding-left: 222px;">
     {% for i in page_obj.paginator.page_range %}
     <a href="?q={{ query }}&page={{ i }}">{{ i }}</a>
 {% endfor %}
 </div>
+{% endif %}
 
-  </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
