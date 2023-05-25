@@ -18,12 +18,12 @@ def elasticsearch_web(query):
         'query': {
             'multi_match': {
                 'query': query,
-                'fields': ['content' ]#, 'title' , 'images', 'videos']
+                'fields': ['title','snippet' ]#, 'title' , 'images', 'videos']
             }
         },
         'sort': [
             {'time': 'desc'}
-        ]
+        ], 'size':50
     })
 
     # `res` will contain the search results
@@ -38,7 +38,7 @@ def elasticsearch_images(query):
                 'query': query,
                 'fields': ['title' ]#, 'title' , 'images', 'videos']
             }
-        }
+        }, 'size':50
     })
 
     # `res` will contain the search results
@@ -52,7 +52,7 @@ def elasticsearch_news(query):
                 'query': query,
                 'fields': ['title','content' ]#, 'title' , 'images', 'videos']
             }
-        }
+        }, 'size':50
     })
 
     return res
