@@ -15,11 +15,34 @@ from search.ElasticSearch import elasticsearch_images,elasticsearch_news,elastic
 
 bing_api_key = s.API_KEY 
 API_KEY = s.API_KEY
+import urllib
 
 def index(request):
     return render(request, 'index.html',locals())
 
 
+import urllib
+
+def sort_by_url_order(result):
+    for i, base_url in enumerate(all_sites):  # all_sites should be list of all URLs
+        if isinstance(base_url, str) and result['url'].startswith(base_url):
+            return i
+    return len(all_sites)
+
+
+def filter_results(search_results):
+    visited_domains = set()
+    filtered_results = []
+    result_to_add_end = []
+
+    for result in search_results:
+        domain  = urllib.parse.urlparse(result['url']).hostname # get_domain(result['url'])
+        if domain not in visited_domains:
+            visited_domains.add(domain)
+            filtered_results.append(result)
+        else:
+            result_to_add_end.append(result)
+    return filtered_results + result_to_add_end
 
 
 def search(request):
@@ -77,16 +100,33 @@ def search(request):
 
         res = elasticsearch_web(query)
 
-        # Process search results
-        hits = []
+        #sort url
+        all_results = []
         for hit in res['hits']['hits']:
-            hit_data = {
-                "url": hit['_source']['url'],
-                "title": hit['_source']['title'],
-                "content": hit['_source']['content'][:100] + '...',  # Limit content to 100 characters
-                "timestamp": hit['_source']['time']
-            }
-            hits.append(hit_data)
+            hit_data = {"url": hit['_source']['url'], "title": hit['_source']['title'],
+                        "content": hit['_source']['snippet'] + '...',  # Limit content to 100 characters
+                        "timestamp": hit['_source']['time']
+                        }
+            all_results.append(hit_data)
+
+        sorted_results = sorted(all_results, key=sort_by_url_order)  # all_results should be list of dict of results
+        hits = filter_results(sorted_results)
+
+
+
+        # # Process search results
+        # hits = []
+        # for hit in res['hits']['hits']:
+        #     hit_data = {
+        #         "url": hit['_source']['url'],
+        #         "title": hit['_source']['title'],
+        #         "content": hit['_source']['content'][:100] + '...',  # Limit content to 100 characters
+        #         "timestamp": hit['_source']['time']
+        #     }
+        #     hits.append(hit_data)
+
+
+
 
         # for hit in res['hits']['hits']:
         #     print(f"URL: {hit['_source']['url']}")
@@ -407,19 +447,33 @@ def news(request , query):
         query = query.replace('e:', '')
 
         res = elasticsearch_news(query)
-        # Process news search results
-        hits = []
-        for hit in res["hits"]["hits"]:
-            snippet = hit["_source"]["snippet"]
-            snippet_words = snippet.split()[:20]  # Limit to the first 50 words
-            snippet_shortened = " ".join(snippet_words)
 
-            hit_data = {
-                "title": hit["_source"]["title"],
-                "url": hit["_source"]["url"],
-                "snippet": snippet_shortened
-            }
-            hits.append(hit_data)
+        # sort url
+        all_results = []
+        for hit in res['hits']['hits']:
+            hit_data = {"url": hit['_source']['url'], "title": hit['_source']['title'],
+                        "content": hit['_source']['snippet'] + '...',  # Limit content to 100 characters
+                        "timestamp": hit['_source']['time']
+                        }
+            all_results.append(hit_data)
+
+        sorted_results = sorted(all_results, key=sort_by_url_order)  # all_results should be list of dict of results
+        hits = filter_results(sorted_results)
+        print(hits)
+
+        # # Process news search results
+        # hits = []
+        # for hit in res["hits"]["hits"]:
+        #     snippet = hit["_source"]["snippet"]
+        #     snippet_words = snippet.split()[:20]  # Limit to the first 50 words
+        #     snippet_shortened = " ".join(snippet_words)
+        #
+        #     hit_data = {
+        #         "title": hit["_source"]["title"],
+        #         "url": hit["_source"]["url"],
+        #         "snippet": snippet_shortened
+        #     }
+        #     hits.append(hit_data)
 
         Elasticsearch = "Elastic search"
         if not query.startswith('E:'):

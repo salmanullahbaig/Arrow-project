@@ -187,8 +187,7 @@
             <li>
               <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
                 <a href="{{ item.url }}">{{ item.url }}</a>
-              <p> {{ item.snippet  }}
-              </p>
+              <p> {{ item.content|truncatewords:20  }}</p>
             </li>
           {% empty %}
             <li>No results found.</li>
