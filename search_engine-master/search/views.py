@@ -11,7 +11,7 @@ from search.general_Bing_search import bing_search_images , bing_news_search , b
 
 from search_engine import settings as s #API_KEY
 from search.self_indexing import I_search
-from search.ElasticSearch import elasticsearch_images,elasticsearch_news,elasticsearch_web
+from search.ElasticSearch import elasticsearch_images,elasticsearch_news,elasticsearch_web,elasticsearch_news_F,elasticsearch_web_F
 
 bing_api_key = s.API_KEY 
 API_KEY = s.API_KEY
@@ -23,11 +23,11 @@ def index(request):
 
 import urllib
 
-def sort_by_url_order(result):
-    for i, base_url in enumerate(all_sites):  # all_sites should be list of all URLs
-        if isinstance(base_url, str) and result['url'].startswith(base_url):
-            return i
-    return len(all_sites)
+# def sort_by_url_order(result):
+#     for i, base_url in enumerate(all_sites):  # all_sites should be list of all URLs
+#         if isinstance(base_url, str) and result['url'].startswith(base_url):
+#             return i
+#     return len(all_sites)
 
 
 def filter_results(search_results):
@@ -39,9 +39,15 @@ def filter_results(search_results):
         domain  = urllib.parse.urlparse(result['url']).hostname # get_domain(result['url'])
         if domain not in visited_domains:
             visited_domains.add(domain)
+            #print('visited-domain', visited_domains)
             filtered_results.append(result)
         else:
-            result_to_add_end.append(result)
+            result_to_add_end_domain = [urllib.parse.urlparse(res['url']).hostname  for res in result_to_add_end]
+            if domain not in result_to_add_end_domain:
+                #print(result_to_add_end_domain)
+                result_to_add_end.append(result)
+    filtered_results.sort(key=lambda x: x['score'], reverse=True)
+    result_to_add_end.sort(key=lambda x: x['score'], reverse=True)
     return filtered_results + result_to_add_end
 
 
@@ -94,25 +100,57 @@ def search(request):
         if not query.startswith('I:'):
             query = f'I:{query}'
         return render(request, 'search.html', locals())
+    elif 'F:' in query or 'f:' in query:
+        query = query.replace('F:', '')
+        query = query.replace('f:', '')
+
+        res = elasticsearch_web_F(query)
+
+        all_results = []
+        res['hits']['hits'].sort(key=lambda x: x['_score'], reverse=True)
+
+        for hit in res['hits']['hits']:
+            url = hit['_source']['url']
+            if '#' in url:
+                continue  # Skip this iteration and move to the next hit
+            hit_data = {
+                "url": url,
+                "title": hit['_source']['title'],
+                "content": hit['_source']['snippet'] + '...',  # Limit content to 100 characters
+                "timestamp": hit['_source']['time'],
+                'score': hit['_score']
+            }
+            all_results.append(hit_data)
+
+        hits = filter_results(all_results)
+
+        Elasticsearch = "Elastic search"
+        if not query.startswith('F:'):
+            query = f'F:{query}'
+        return render(request, 'search.html', locals())
     elif 'E:' in query or 'e:' in query:
         query = query.replace('E:', '')
         query = query.replace('e:', '')
 
         res = elasticsearch_web(query)
 
-        #sort url
         all_results = []
+        res['hits']['hits'].sort(key=lambda x: x['_score'], reverse=True)
+
         for hit in res['hits']['hits']:
-            hit_data = {"url": hit['_source']['url'], "title": hit['_source']['title'],
-                        "content": hit['_source']['snippet'] + '...',  # Limit content to 100 characters
-                        "timestamp": hit['_source']['time']
-                        }
+            url = hit['_source']['url']
+            if '#' in url:
+                continue  # Skip this iteration and move to the next hit
+            hit_data = {
+                "url": url,
+                "title": hit['_source']['title'],
+                "content": hit['_source']['snippet'] + '...',  # Limit content to 100 characters
+                "timestamp": hit['_source']['time'],
+                'score': hit['_score']
+            }
             all_results.append(hit_data)
 
-        sorted_results = sorted(all_results, key=sort_by_url_order)  # all_results should be list of dict of results
-        hits = filter_results(sorted_results)
-
-
+        hits = filter_results(all_results)
 
         # # Process search results
         # hits = []
@@ -325,12 +363,12 @@ def videos(request,query):
         # Call Bing API with pagination
         for offset in range((page_number - 1) * 50, page_number * 50, 50):
             bing_results = bing_search_videos(query, bing_api_key, offset)
-            print("bing_results v ",bing_results)
+            #print("bing_results v ",bing_results)
             for item in bing_results.get("value", []):
                 name = item["name"]
                 url = item["contentUrl"]
                 videos.append({"name": name, "url": url})
-        print(videos)
+        #print(videos)
         # Use Django's built-in paginator to paginate the results
         paginator = Paginator(videos, 10)
         page_obj = paginator.get_page(page_number)
@@ -354,6 +392,7 @@ def videos(request,query):
                     filtered_results.append(result)
             except:
                 pass
+        print("filtered_results",filtered_results)
         if not query.startswith('I:'):
             query = f'I:{query}'
         limite_I = "Limited I: search"
@@ -391,11 +430,11 @@ def videos(request,query):
                 pass
         custom_videos = [{'url': x['contentUrl'], 'hostUrl': x['hostPageUrl'], 'name': x['name']} for x in all_results]
 
-        for image in custom_videos:
-            print("name  URL:", image['name'])
-            print("video  URL:", image['url'])
-            print("video URL:", image['hostUrl'])
-            print()  # Adding an empty line for better readability
+        # for image in custom_videos:
+        #     print("name  URL:", image['name'])
+        #     print("video  URL:", image['url'])
+        #     print("video URL:", image['hostUrl'])
+        #     print()  # Adding an empty line for better readability
 
 
     return render(request, 'videos.html', locals())
@@ -447,19 +486,23 @@ def news(request , query):
         query = query.replace('e:', '')
 
         res = elasticsearch_news(query)
-
-        # sort url
         all_results = []
+        res['hits']['hits'].sort(key=lambda x: x['_score'], reverse=True)
+
         for hit in res['hits']['hits']:
-            hit_data = {"url": hit['_source']['url'], "title": hit['_source']['title'],
-                        "content": hit['_source']['snippet'] + '...',  # Limit content to 100 characters
-                        "timestamp": hit['_source']['time']
-                        }
+            url = hit['_source']['url']
+            if '#' in url:
+                continue  # Skip this iteration and move to the next hit
+            hit_data = {
+                "url": url,
+                "title": hit['_source']['title'],
+                "content": hit['_source']['snippet'] + '...',  # Limit content to 100 characters
+                "timestamp": hit['_source']['time'],
+                'score': hit['_score']
+            }
             all_results.append(hit_data)
 
-        sorted_results = sorted(all_results, key=sort_by_url_order)  # all_results should be list of dict of results
-        hits = filter_results(sorted_results)
-        print(hits)
+        hits = filter_results(all_results)
 
         # # Process news search results
         # hits = []
@@ -478,6 +521,34 @@ def news(request , query):
         Elasticsearch = "Elastic search"
         if not query.startswith('E:'):
             query = f'E:{query}'
+        return render(request, 'news.html', locals())
+    elif 'F:' in query or 'f:' in query:
+        query = query.replace('F:', '')
+        query = query.replace('f:', '')
+
+        res = elasticsearch_news_F(query)
+
+        all_results = []
+        res['hits']['hits'].sort(key=lambda x: x['_score'], reverse=True)
+
+        for hit in res['hits']['hits']:
+            url = hit['_source']['url']
+            if '#' in url:
+                continue  # Skip this iteration and move to the next hit
+            hit_data = {
+                "url": url,
+                "title": hit['_source']['title'],
+                "content": hit['_source']['snippet'] + '...',  # Limit content to 100 characters
+                "timestamp": hit['_source']['time'],
+                'score': hit['_score']
+            }
+            all_results.append(hit_data)
+
+        hits = filter_results(all_results)
+
+        Elasticsearch = "Elastic search"
+        if not query.startswith('F:'):
+            query = f'F:{query}'
         return render(request, 'news.html', locals())
     elif 'I:' in query or 'i:' in query:
         query = query.replace('I:', '')

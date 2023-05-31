@@ -18,18 +18,26 @@ def elasticsearch_web(query):
         'query': {
             'multi_match': {
                 'query': query,
-                'fields': ['title','snippet' ]#, 'title' , 'images', 'videos']
+                'fields': ['title']#, 'title' , 'images', 'videos']
             }
-        },
-        'sort': [
-            {'time': 'desc'}
-        ], 'size':50
+        },'size':200
     })
 
     # `res` will contain the search results
     return res
 
+def elasticsearch_web_F(query):
+    res = client.search(index='websites', body={
+        'query': {
+            'multi_match': {
+                'query': query,
+                'fields': ['title','content']#, 'title' , 'images', 'videos']
+            }
+        },'size':200
+    })
 
+    # `res` will contain the search results
+    return res
 
 def elasticsearch_images(query):
     res = client.search(index='images', body={
@@ -50,9 +58,22 @@ def elasticsearch_news(query):
         'query': {
             'multi_match': {
                 'query': query,
-                'fields': ['title','content' ]#, 'title' , 'images', 'videos']
+                'fields': ['title','snippet']#, 'title' , 'images', 'videos']
             }
-        }, 'size':50
+        }, 'size':200
+    })
+
+    return res
+
+
+def elasticsearch_news_F(query):
+    res = client.search(index='news', body={
+        'query': {
+            'multi_match': {
+                'query': query,
+                'fields': ['title','content']#, 'title' , 'images', 'videos']
+            }
+        }, 'size':200
     })
 
     return res
