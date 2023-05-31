@@ -79,11 +79,11 @@ news_sites  = [
 ]
 
 
-social_site = [
-    'facebook.com',
-    'twitter.com',
-    'instagram.com',
-    'tiktok.com/en/',
+social_site = [''
+    # 'facebook.com',
+    # 'twitter.com',
+    # 'instagram.com',
+    # 'tiktok.com/en/',
 ]
 
 other_sites  = [

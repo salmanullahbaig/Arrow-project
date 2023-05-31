@@ -211,6 +211,8 @@ def search(request):
     #     relevance_threshold = 1
     #     filtered_results = filter_results_by_relevance(results, main_words, relevance_threshold)
     else:
+        if query and (query.startswith('C:') or query.startswith('c:')):
+            query = query[2:]  # Remove the first two characters (C: or c:)
         results_concurrent = search_custom_web_concurrent_search(query, all_sites, search_custom_web,
                                                                  max_workers=len(all_sites))
 
@@ -328,7 +330,8 @@ def google_images_search(request,query):
         limite_I = "Limited I: search"
         return render(request, 'google_images_search.html', locals())
     else:
-        # query = "apple"
+        if query and (query.startswith('C:') or query.startswith('c:')):
+            query = query[2:]  # Remove the first two characters (C: or c:)
         results_concurrent = concurrent_search_for_custom_images_search(query, all_sites, custom_search_images,max_workers=len(all_sites))
 
         all_results = []
@@ -414,7 +417,8 @@ def videos(request,query):
         # # Use Django's built-in paginator to paginate the results
         # paginator = Paginator(videos, 10)
         # page_obj = paginator.get_page(page_number)
-
+        if query and (query.startswith('C:') or query.startswith('c:')):
+            query = query[2:]  # Remove the first two characters (C: or c:)
         x_sites = []
         for x in all_sites:
             for y in x: x_sites.append(y)
@@ -599,7 +603,8 @@ def news(request , query):
         # # # Filter the results by relevance
         # relevance_threshold = 1
         # filtered_results = filter_results_by_relevance(results, main_words, relevance_threshold)
-
+        if query and (query.startswith('C:') or query.startswith('c:')):
+            query = query[2:]  # Remove the first two characters (C: or c:)
         results_concurrent = concurrent_search_custom_news_search(query, [news_sites], custom_news_search,
                                                                   max_workers=len([0]))
 
